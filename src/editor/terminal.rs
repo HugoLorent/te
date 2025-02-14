@@ -16,7 +16,7 @@ pub struct Position {
     pub y: u16,
 }
 
-pub struct Terminal {}
+pub struct Terminal;
 
 impl Terminal {
     pub fn initialize() -> Result<(), Error> {
