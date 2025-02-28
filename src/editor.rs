@@ -1,4 +1,5 @@
 mod terminal;
+mod view;
 use core::cmp::min;
 use crossterm::event::{
     read,
@@ -7,9 +8,7 @@ use crossterm::event::{
 };
 use std::io::Error;
 use terminal::{Position, Size, Terminal};
-
-const NAME: &str = env!("CARGO_PKG_NAME");
-const VERSION: &str = env!("CARGO_PKG_VERSION");
+use view::View;
 
 #[derive(Copy, Clone, Default)]
 pub struct Location {
@@ -50,8 +49,7 @@ impl Editor {
             Terminal::clear_screen()?;
             Terminal::print("Goodbye.\r\n")?;
         } else {
-            Self::draw_rows()?;
-            Self::draw_welcome_message()?;
+            View::render()?;
             Terminal::move_caret_to(Position {
                 col: self.location.x,
                 row: self.location.y,
@@ -121,31 +119,6 @@ impl Editor {
             _ => (),
         }
         self.location = Location { x, y };
-        Ok(())
-    }
-
-    fn draw_rows() -> Result<(), Error> {
-        let terminal_height = Terminal::size()?.height;
-        for current_row in 0..terminal_height {
-            Terminal::clear_line()?;
-            Terminal::print("~")?;
-            if current_row.saturating_add(1) < terminal_height {
-                Terminal::print("\r\n")?;
-            }
-        }
-        Ok(())
-    }
-
-    fn draw_welcome_message() -> Result<(), Error> {
-        let welcome_message = format!("{NAME} editor -- version {VERSION}");
-        let message_width = welcome_message.len();
-        let terminal_size = Terminal::size()?;
-        #[allow(clippy::integer_division)]
-        let x = (terminal_size.width.saturating_sub(message_width)) / 2;
-        #[allow(clippy::integer_division)]
-        let y = terminal_size.height / 3;
-        Terminal::move_caret_to(Position { col: x, row: y })?;
-        Terminal::print(&welcome_message)?;
         Ok(())
     }
 }
